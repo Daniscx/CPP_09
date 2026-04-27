@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   BitcoinExchange.hpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmaestro <dmaestro@student.42madrid.con    +#+  +:+       +#+        */
+/*   By: dmaestro <dmaestro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/26 21:34:11 by dmaestro          #+#    #+#             */
-/*   Updated: 2026/04/27 00:26:48 by dmaestro         ###   ########.fr       */
+/*   Updated: 2026/04/27 18:24:33 by dmaestro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ enum Error{
     SEXYSMOKINSTYLE,
     UNKNOW_ERROR,
     INVALID_HEADER,
-    FILE_error = 100,
+    FILE_ERROR = 100,
     INVALID_INPUT_FILE,
     INVALID_DATA_BASE,
     DATE_FAIL = 200,
@@ -34,6 +34,7 @@ enum Error{
     TOO_EARLY_DATE, 
     VALUE = 300,
     BAD_VALUE,
+    NEGATIVE_VALUE,
     OVERFLOW,
     NO_VALUE,
 };
@@ -41,8 +42,9 @@ enum Error{
 class BitcoinExchange
 {
     private:
-    std::map<int, float> base; 
+    std::map<long long, float> base; 
     std::map<unsigned int, Error> ErrorCheck; 
+    std::string separator;
       
     public:
     class InvalidInput : public std::exception
@@ -57,9 +59,13 @@ class BitcoinExchange
     };
     
     BitcoinExchange();
+    void setValue(long long  date, float value);
+    void setError(unsigned int line, Error type);
+    void setSeparator(  std::string &ref)const;
     void takeError(Error type);
     void parseFile(const std::string & input);
     void parseDataBase(const std::string & Data);
     void printResult();
+    std::string &getSeparator();
     
 };
