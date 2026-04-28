@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dmaestro <dmaestro@student.42madrid.con    +#+  +:+       +#+        */
+/*   By: dmaestro <dmaestro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/26 22:17:09 by dmaestro          #+#    #+#             */
-/*   Updated: 2026/04/27 00:28:59 by dmaestro         ###   ########.fr       */
+/*   Updated: 2026/04/28 19:59:21 by dmaestro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,14 @@
 
 int main(int agrs, char **argv)
 {
-    BitcoinExchange pepe;
+    BitcoinExchange Data;
+    BitcoinExchange input;
+    
 
-    pepe.parseDataBase(argv[1]);
-    pepe.printResult();
+    if(!Data.parseDataBase(argv[1]))
+        exit(1);
+   if(!input.parseFile(argv[2], Data.getFirstValue()));
+
     
     
 }

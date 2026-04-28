@@ -6,7 +6,7 @@
 /*   By: dmaestro <dmaestro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/26 21:34:11 by dmaestro          #+#    #+#             */
-/*   Updated: 2026/04/27 18:24:33 by dmaestro         ###   ########.fr       */
+/*   Updated: 2026/04/28 19:54:17 by dmaestro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,12 +59,13 @@ class BitcoinExchange
     };
     
     BitcoinExchange();
+    long long getFirstValue();
     void setValue(long long  date, float value);
     void setError(unsigned int line, Error type);
-    void setSeparator(  std::string &ref)const;
+    void setSeparator(  std::string &ref);
     void takeError(Error type);
-    void parseFile(const std::string & input);
-    void parseDataBase(const std::string & Data);
+    bool parseFile(const std::string & input, long long initialValue);
+    bool parseDataBase(const std::string & Data);
     void printResult();
     std::string &getSeparator();
     
