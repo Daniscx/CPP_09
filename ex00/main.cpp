@@ -6,7 +6,7 @@
 /*   By: dmaestro <dmaestro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/26 22:17:09 by dmaestro          #+#    #+#             */
-/*   Updated: 2026/04/28 19:59:21 by dmaestro         ###   ########.fr       */
+/*   Updated: 2026/04/30 18:38:59 by dmaestro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,9 @@ int main(int agrs, char **argv)
 
     if(!Data.parseDataBase(argv[1]))
         exit(1);
-   if(!input.parseFile(argv[2], Data.getFirstValue()));
+   if(!input.parseFile(argv[2], Data.getFirstValue()))
+        exit(1);
+    input.printResult(Data);
 
     
     

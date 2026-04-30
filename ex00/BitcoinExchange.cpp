@@ -6,7 +6,7 @@
 /*   By: dmaestro <dmaestro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/26 22:15:58 by dmaestro          #+#    #+#             */
-/*   Updated: 2026/04/28 20:11:05 by dmaestro         ###   ########.fr       */
+/*   Updated: 2026/04/30 18:41:11 by dmaestro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,6 +65,8 @@ BitcoinExchange::InvalidInput::InvalidInput(const char *message) : msg(message)
     this->ErrorCheck.emplace(line, type);
     
  }
+ void dateValue(std::string line, long long first_date, BitcoinExchange& Data, unsigned int actualLine);
+ static void headerParser(bool type, std::string line,  BitcoinExchange& nidia);
  bool BitcoinExchange::parseFile(const std::string & Data, long long initialValue)
 {
      std::ifstream file;
@@ -97,8 +99,7 @@ BitcoinExchange::InvalidInput::InvalidInput(const char *message) : msg(message)
     while(std::getline(file, actualLine))
     {
         if(actualLine.empty())
-        {
-            i++;
+        {  
             continue;
         }
         dateValue(actualLine, initialValue, *this, i);
@@ -143,11 +144,34 @@ static void headerParser(bool type, std::string line,  BitcoinExchange& nidia)
     }
     else
     {
-         buff2 = line.substr(5, 13);
+         buff2 = line.substr(5, 5);
     }    
     std::string separator = line.substr(4, 1);
     nidia.setSeparator(separator);
     nidia.setError(0, SEXYSMOKINSTYLE);
+}
+float BitcoinExchange::getValueaprox(long long date)
+{
+    float result;
+    std::map<long long , float>::iterator first = this->base.begin()++;
+     std::map<long long , float>::iterator second = this->base.begin();
+     try
+     {
+        result = this->base.at(date);
+        return(result);
+     }
+     catch(std::exception &e)
+     {
+        while(second != this->base.cend())
+            {
+                if(second->first < date  && first->first < date )
+                    return(first->second);
+                first++;
+                second++;
+            }
+     }
+     return(second->second);
+     
 }
 void BitcoinExchange::setValue(long long date, float value)
 {
@@ -158,6 +182,7 @@ std::string &BitcoinExchange::getSeparator()
 {
     return(this->separator);
 }
+
 void dateValue(std::string line, long long first_date, BitcoinExchange& Data, unsigned int actualLine)
 {
     std::string buff;
@@ -238,13 +263,13 @@ bool BitcoinExchange::parseDataBase(const std::string & Data)
     if(Data.substr(Data.length() - 4, 4).compare(".csv"))
     {
          this->ErrorCheck.emplace(0, INVALID_DATA_BASE);
-         return ;
+         return false;
     }
     file.open(Data);
     if(!file)
     {
         this->ErrorCheck.emplace(0, INVALID_DATA_BASE);
-        return ;
+        return false;
     }
     std::string actualLine;
     unsigned int i = 0;
@@ -275,8 +300,9 @@ bool BitcoinExchange::parseDataBase(const std::string & Data)
         dateValue(actualLine, -1, *this, i);
         i++;
     }
+    return(true);
 }
-void BitcoinExchange::printResult()
+void BitcoinExchange::printResult(BitcoinExchange &other)
 {
     std::map<long long, float>::iterator a;
     std::map<unsigned int, Error>::iterator b;
@@ -288,7 +314,7 @@ void BitcoinExchange::printResult()
         try
         {
             this->takeError( this->ErrorCheck.at(i));
-            std::cout << LongLongToString(a->first)  << " " << a->second << std::endl;
+             std::cout << LongLongToString(a->first)  << " " << a->second << " " <<  other.getValueaprox(a->first)*a->second <<  std::endl;
         }
         catch(const std::exception& e)
         {
