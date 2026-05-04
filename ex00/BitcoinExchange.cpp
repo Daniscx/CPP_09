@@ -6,7 +6,7 @@
 /*   By: dmaestro <dmaestro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/26 22:15:58 by dmaestro          #+#    #+#             */
-/*   Updated: 2026/04/30 18:41:11 by dmaestro         ###   ########.fr       */
+/*   Updated: 2026/05/04 20:34:12 by dmaestro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,10 +47,11 @@ std::string LongLongToString(long long date)
     int days;
     int month;
     years = date / 10000;
+    
     month = (date  - years*10000)  / 100  ;
     days  = date - years * 10000 - month * 100;
 
-    std::string dateString = std::to_string(years) + "-" +std::to_string(month) + "-" + std::to_string(days);
+    std::string dateString = std::to_string(years) + "-" + ((month < 10) ? "0" + std::to_string(month) : std::to_string(month)) + "-" +  ((days < 10) ? "0" + std::to_string(days) : std::to_string(days));
     return(dateString);
 }
 BitcoinExchange::BitcoinExchange() : separator("")
@@ -96,6 +97,7 @@ BitcoinExchange::InvalidInput::InvalidInput(const char *message) : msg(message)
         return(false);
     }
     
+    i++;
     while(std::getline(file, actualLine))
     {
         if(actualLine.empty())
@@ -153,23 +155,18 @@ static void headerParser(bool type, std::string line,  BitcoinExchange& nidia)
 float BitcoinExchange::getValueaprox(long long date)
 {
     float result;
-    std::map<long long , float>::iterator first = this->base.begin()++;
+    std::map<long long , float>::iterator first = this->base.begin();
      std::map<long long , float>::iterator second = this->base.begin();
-     try
-     {
-        result = this->base.at(date);
-        return(result);
-     }
-     catch(std::exception &e)
-     {
+     second ++;
+
         while(second != this->base.cend())
             {
-                if(second->first < date  && first->first < date )
+                if(second->first > date   && first->first <= date )
                     return(first->second);
                 first++;
                 second++;
             }
-     }
+
      return(second->second);
      
 }
@@ -195,7 +192,7 @@ void dateValue(std::string line, long long first_date, BitcoinExchange& Data, un
      std::stringstream tempfile(line);
     std::getline(tempfile, buff, *separator.c_str());
     if(buff.empty())
-        Data.setError(actualLine, BAD_VALUE);
+        Data.setError(actualLine, BAD_DATE);
      std::getline(tempfile, buff2);
     if(buff2.empty())
         Data.setError(actualLine, BAD_VALUE);
@@ -218,7 +215,7 @@ bool validDay(unsigned int days , unsigned int month, unsigned int years)
 {
     if(((month % 7) % 2 != 0 || month == 7) && days > 31 )
         return(false);
-    else if((month % 7) % 2 == 0 && days > 30 )
+    else if((month % 7) % 2 == 0 && month != 7 && days > 30 )
         return (false);
     else if(month == 2 && ((years % 4 && years % 100 != 0) || (years % 100 == 0 &&  years %400 == 0)))
         return(true);
@@ -255,7 +252,7 @@ long long dateToLongLongConverter(std::string& date,  BitcoinExchange& Data,unsi
 }
 long long BitcoinExchange::getFirstValue()
 {
-    return(this->base.begin()->second);    
+    return(this->base.begin()->first);    
 }
 bool BitcoinExchange::parseDataBase(const std::string & Data)
 {
@@ -290,7 +287,7 @@ bool BitcoinExchange::parseDataBase(const std::string & Data)
         std::cerr << RED << e.what() << RESET <<  std::endl;
         return(false);
     }
-    
+    i++;
     while(std::getline(file, actualLine))
     {
         if(actualLine.empty())
@@ -300,6 +297,39 @@ bool BitcoinExchange::parseDataBase(const std::string & Data)
         dateValue(actualLine, -1, *this, i);
         i++;
     }
+    std::map<long long, float>::iterator a;
+    a = this->base.begin();
+    for (size_t j = 0; a != this->base.end(); j++, a++)
+        {
+             Error whicht = this->ErrorCheck.at(j);
+            try
+            {
+                this->takeError(whicht);
+            }
+        catch(const std::exception& e)
+        {
+            std::cerr << RED << e.what() << " in line " << j;
+            switch (int i = whicht / 100)
+            {
+                case 1:
+                    std::cerr << RESET << std::endl;
+                    return false;
+                    break;
+                case 2:
+                    std::cerr <<"=> "<< LongLongToString(a->first) << RESET << std::endl;
+                    return(false);
+                    break;
+                case 3:
+                    std::cerr <<"=> "<< a->second << RESET << std::endl;
+                    return false;
+                default:
+                    std::cerr << RESET << std::endl;
+                    break;
+            }
+            
+        }
+
+        }
     return(true);
 }
 void BitcoinExchange::printResult(BitcoinExchange &other)
@@ -307,14 +337,15 @@ void BitcoinExchange::printResult(BitcoinExchange &other)
     std::map<long long, float>::iterator a;
     std::map<unsigned int, Error>::iterator b;
     a = this->base.begin();
-    Error whicht = this->ErrorCheck.at(1);
-    unsigned int i = 0;
+   
+    unsigned int i = 1;
     while(a != this->base.end())
     {
+        Error whicht = this->ErrorCheck.at(i);
         try
         {
             this->takeError( this->ErrorCheck.at(i));
-             std::cout << LongLongToString(a->first)  << " " << a->second << " " <<  other.getValueaprox(a->first)*a->second <<  std::endl;
+             std::cout << LongLongToString(a->first)  << " => " << a->second << " = " <<  other.getValueaprox(a->first)*a->second <<  std::endl;
         }
         catch(const std::exception& e)
         {
