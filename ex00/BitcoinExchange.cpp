@@ -6,7 +6,7 @@
 /*   By: dmaestro <dmaestro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/26 22:15:58 by dmaestro          #+#    #+#             */
-/*   Updated: 2026/05/04 20:34:12 by dmaestro         ###   ########.fr       */
+/*   Updated: 2026/05/04 20:53:00 by dmaestro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,7 +123,7 @@ static void headerParser(bool type, std::string line,  BitcoinExchange& nidia)
          nidia.setError(0, INVALID_HEADER);
          return ;
     }
-    line.erase(std::remove(line.begin(),line.end(), " "), line.end());
+    line.erase(std::remove(line.begin(),line.end(), ' '), line.end());
     if((line.length() != 18 && type == true )|| (line.length() != 10 && type == false))
     {
         nidia.setError(0, INVALID_HEADER);
@@ -188,7 +188,7 @@ void dateValue(std::string line, long long first_date, BitcoinExchange& Data, un
     std::string separator = Data.getSeparator();
     long long actualShit;
     int i = 0;
-    line.erase(std::remove(line.begin(),line.end(), " "), line.end());
+    line.erase(std::remove(line.begin(),line.end(), ' '), line.end());
      std::stringstream tempfile(line);
     std::getline(tempfile, buff, *separator.c_str());
     if(buff.empty())
@@ -331,6 +331,14 @@ bool BitcoinExchange::parseDataBase(const std::string & Data)
 
         }
     return(true);
+}
+int  Value_checker(std::string &value, BitcoinExchange& other, int actualLine, bool max)
+{
+    for(size_t i = 0; i != value.size(); i++)
+    {
+        if(!isdigit(value[i]) && value[i] != '.')
+            other.ErrorCheck            
+    }
 }
 void BitcoinExchange::printResult(BitcoinExchange &other)
 {
