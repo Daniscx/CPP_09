@@ -6,7 +6,7 @@
 /*   By: dmaestro <dmaestro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/26 22:17:09 by dmaestro          #+#    #+#             */
-/*   Updated: 2026/04/30 18:38:59 by dmaestro         ###   ########.fr       */
+/*   Updated: 2026/05/05 19:10:11 by dmaestro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,12 @@ int main(int agrs, char **argv)
     BitcoinExchange Data;
     BitcoinExchange input;
     
-
+    if(agrs != 3)
+    {
+         std::cerr <<RED << "Invalid args:: <Database.csv> <InputFile> " << RESET << std::endl;
+         exit(1);
+    }
+       
     if(!Data.parseDataBase(argv[1]))
         exit(1);
    if(!input.parseFile(argv[2], Data.getFirstValue()))
