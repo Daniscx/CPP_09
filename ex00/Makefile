@@ -1,7 +1,7 @@
 NAME = Bitcoin
 
 CXX = c++
-CXXFLAGS = -Wall -Werror -Wextra  -std=c++98
+CXXFLAGS = -Wall -Werror -Wextra  -std=c++98 -g
 CFILES = main.cpp  BitcoinExchange.cpp
 
 OBJECTS = $(CFILES:.cpp=.o)

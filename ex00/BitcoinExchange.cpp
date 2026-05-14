@@ -6,7 +6,7 @@
 /*   By: dmaestro <dmaestro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/26 22:15:58 by dmaestro          #+#    #+#             */
-/*   Updated: 2026/05/05 18:23:46 by dmaestro         ###   ########.fr       */
+/*   Updated: 2026/05/11 16:04:49 by dmaestro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include "string"
 #include <algorithm>
 #include <sstream>
+float  Value_checker(std::string &value, BitcoinExchange& other, int actualLine, bool max);
 void  BitcoinExchange::takeError(Error type)
 {
     switch (type)
@@ -37,6 +38,10 @@ void  BitcoinExchange::takeError(Error type)
         case NO_VALUE:
             throw BitcoinExchange::InvalidInput("ERROR::Not value input");
             break;
+        case OVERFLOW:
+            throw BitcoinExchange::InvalidInput("ERROR::To high value");
+        case NEGATIVE_VALUE:
+            throw BitcoinExchange::InvalidInput("ERROR::Not a positive number");
     default:
         break;
     };
@@ -67,7 +72,7 @@ BitcoinExchange::InvalidInput::InvalidInput(const char *message) : msg(message)
     this->ErrorCheck.insert(std::make_pair(line, type));
     
  }
- void dateValue(std::string line, long long first_date, BitcoinExchange& Data, unsigned int actualLine);
+ void dateValue(std::string line, long long first_date, BitcoinExchange& Data, unsigned int actualLine, bool max);
  static void headerParser(bool type, std::string line,  BitcoinExchange& nidia);
  bool BitcoinExchange::parseFile(const std::string & Data, long long initialValue)
 {
@@ -105,13 +110,13 @@ BitcoinExchange::InvalidInput::InvalidInput(const char *message) : msg(message)
         {  
             continue;
         }
-        dateValue(actualLine, initialValue, *this, i);
+        dateValue(actualLine, initialValue, *this, i, true);
         i++;
     }
     return(true);
     
 }
-long long dateToLongLongConverter(std::string& date,  BitcoinExchange& Data,unsigned int actuaLine, long long first_date );
+long long dateToLongLongConverter(std::string& date,  BitcoinExchange& Data,unsigned int actuaLine, long long first_date);
 void BitcoinExchange::setSeparator( std::string& ref) 
 {
     this->separator = ref;
@@ -180,7 +185,7 @@ std::string &BitcoinExchange::getSeparator()
     return(this->separator);
 }
 
-void dateValue(std::string line, long long first_date, BitcoinExchange& Data, unsigned int actualLine)
+void dateValue(std::string line, long long first_date, BitcoinExchange& Data, unsigned int actualLine, bool max)
 {
     std::string buff;
     std::string buff2;
@@ -204,7 +209,7 @@ void dateValue(std::string line, long long first_date, BitcoinExchange& Data, un
         else if((i != 4  && i != 7) && !std::isdigit(buff[i]))
             Data.setError(actualLine, BAD_DATE);            
     }
-    Data.setValue(dateToLongLongConverter(buff, Data, actualLine, first_date), std::atof(buff2.c_str()));
+    Data.setValue(dateToLongLongConverter(buff, Data, actualLine, first_date), (Value_checker(buff2, Data, actualLine, max)));
         Data.setError(actualLine, SEXYSMOKINSTYLE);
         
     
@@ -292,7 +297,7 @@ bool BitcoinExchange::parseDataBase(const std::string & Data)
         {
             continue;
         }
-        dateValue(actualLine, -1, *this, i);
+        dateValue(actualLine, -1, *this, i, false);
         i++;
     }
     std::map<long long, float>::iterator a;
@@ -330,14 +335,30 @@ bool BitcoinExchange::parseDataBase(const std::string & Data)
         }
     return(true);
 }
-/*int  Value_checker(std::string &value, BitcoinExchange& other, int actualLine, bool max)
+float  Value_checker(std::string &value, BitcoinExchange& other, int actualLine, bool max)
 {
-    for(size_t i = 0; i != value.size(); i++)
+    size_t i = 0;
+    for(; i < value.size(); i++)
     {
         if(!isdigit(value[i]) && value[i] != '.')
-            other.ErrorCheck            
+            other.setError(actualLine, BAD_VALUE);
+        if(value[i] == '.')
+            break;         
     }
-}*/
+    i++;
+     for(; i < value.length(); i++)
+    {
+        if(!isdigit(value[i]))
+            other.setError(actualLine, BAD_VALUE);   
+    }
+    float result;
+    result = std::atof(value.c_str());
+    if(result < 0)
+        other.setError(actualLine, NEGATIVE_VALUE);
+    if(max == true  && result > 1000 )
+        other.setError(actualLine, OVERFLOW);
+    return(result);
+}
 void BitcoinExchange::printResult(BitcoinExchange &other)
 {
     std::map<long long, float>::iterator a;
@@ -366,6 +387,7 @@ void BitcoinExchange::printResult(BitcoinExchange &other)
                     break;
                 case 3:
                     std::cerr <<"=> "<< a->second << RESET << std::endl;
+                    break;
                 default:
                     std::cerr << RESET << std::endl;
                     break;
