@@ -6,7 +6,7 @@
 /*   By: dmaestro <dmaestro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/14 17:25:25 by dmaestro          #+#    #+#             */
-/*   Updated: 2026/05/14 19:54:49 by dmaestro         ###   ########.fr       */
+/*   Updated: 2026/05/15 16:47:07 by dmaestro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
     }
     RPN::RPN(const RPN &other)
     {
+        (void)other;
         //std::cout << "assignament constructor called" << std::endl;        
     }
   RPN  RPN::operator=(const RPN &other)
@@ -26,7 +27,7 @@
         {
             
             this->Numbers_stack = other.Numbers_stack;
-            this->operation = other.operation;
+
         }
         return(*this);
     }
@@ -37,7 +38,7 @@
     }
     RPN::RPN(std::string& input)
     {
-        
+        (void)input;
     }
     int resta(int a, int b)
     {
@@ -51,7 +52,13 @@
     {
         return(a*b);
     }
-    static void *funciton(int i)
+    int division(int a, int b)
+    {
+        if(b == 0)
+           throw std::out_of_range("NO 0 bicht");
+        return(a/b);
+    }
+     funct function(int i)
     {
         switch (i)
         {
@@ -61,34 +68,59 @@
         case 43:
             return(&suma);
         case 45:
-        return(&resta);
+            return(&resta);
+        case 47:
+            return(&division);
         default:
             break;
         }
+        return(NULL);
     }
-    int RPN::result(std::string& input)
+    
+    void RPN::result(std::string& input)
     {
         int actual = 0;
+        int second2 = 0;
         int i = 0;
+        funct operation;
         input.erase(std::remove(input.begin(),input.end(), ' '), input.end());
-        
-        while (input[i])
+        try
         {
-            if(isdigit(input[i]))
-                this->Numbers_stack.push(input[i] - '0');
-            if()
+            while (input[i])
+            {
+                if(isdigit(input[i]))
+                {
+                    this->Numbers_stack.push(input[i] - '0');
+                    i++;
+                    continue;
+                }
+            
+            operation = function(input[i]);
+            if(operation != NULL)
+            {
+                if(this->Numbers_stack.size() < 2)
+                    throw(InvalidInputa("tete"));
+                actual = this->Numbers_stack.top();
+                this->Numbers_stack.pop();
+                second2 = this->Numbers_stack.top();
+                this->Numbers_stack.pop();
+                this->Numbers_stack.push(operation(second2, actual));
+            }
             i++;
             
         }
-        
-        try 
-        { 
-            actual = this->Numbers_stack.pop()
         }
-        catch(std::exception &e)
+        catch(const std::exception& e)
         {
-            throw InvalidInputa("asdasdas");
-
+            std::cerr <<"ERROR" << '\n';
+            exit(1);
         }
-            
+        if(this->Numbers_stack.size() != 1)
+          {
+            std::cerr <<"ERROR" << '\n';
+            exit(1);
+        }
+        std::cout << this->Numbers_stack.top() << std::endl;
+        
+
     }
